@@ -1,9 +1,10 @@
 package simple
 
 import (
-	"fmt"
+	//	"fmt"
 
-	"mosn.io/envoy-go-extension/pkg/http/api"
+	//"mosn.io/envoy-go-extension/pkg/http/api"
+	"github.com/envoyproxy/envoy/contrib/golang/filters/http/source/go/pkg/api"
 )
 
 type filter struct {
@@ -13,15 +14,19 @@ type filter struct {
 
 func (f *filter) sendLocalReply() api.StatusType {
 	// TODO: local reply headers
-	headers := make(map[string]string)
-	body := fmt.Sprintf("forbidden from go, path: %s\r\n", f.path)
-	f.callbacks.SendLocalReply(403, body, headers, -1, "test-from-go")
+	//	headers := make(map[string]string)
+	//	body := fmt.Sprintf("forbidden from go, path: %s\r\n", f.path)
+	msg := "dsdssd"
+	//f.callbacks.SendLocalReply(403, body, headers, 0, "test-from-go")
+	f.callbacks.SendLocalReply(401, msg, map[string]string{}, 0, "bad-request")
 	return api.LocalReply
 }
 
 func (f *filter) DecodeHeaders(header api.RequestHeaderMap, endStream bool) api.StatusType {
-	f.path = header.Get(":path")
+	f.path, _ = header.Get(":path")
 	header.Set("Req-Header-From-Go", "foo-test")
+	//f.callbacks.Log(api.Debug, fmt.Sprintf("DecodeHeaders,path: %s", f.path))
+	//f.callbacks.Log(api.Debug, "sddsdssdsd")
 	if f.path == "/localreply" {
 		return f.sendLocalReply()
 	}
